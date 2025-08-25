@@ -28,6 +28,13 @@ function getStandardHeaders(cookie: string) {
   };
 }
 
+// 检查响应是否表示登录失效
+function checkLoginExpired(response: any): void {
+  if (response.data.errCode === -2012) {
+    throw new Error("Cookie已过期");
+  }
+}
+
 async function retry<T>(
   func: () => Promise<T>,
   maxAttempts = 3,
@@ -37,6 +44,11 @@ async function retry<T>(
     try {
       return await func();
     } catch (error) {
+      console.log('重试失败', error.message);
+      if(error.message === 'Cookie已过期'){
+        // cookie过期不需要重试
+        throw error
+      }
       if (attempt === maxAttempts) throw error;
       await new Promise(resolve =>
         setTimeout(resolve, waitMs + Math.floor(Math.random() * 3000))
@@ -56,6 +68,10 @@ export class WeReadService {
         timeout: 30000,
         params: { _: Date.now() },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
@@ -86,6 +102,10 @@ export class WeReadService {
         timeout: 30000,
         params: { bookId, _: Date.now() },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         return {}
       }
@@ -117,6 +137,10 @@ export class WeReadService {
         timeout: 30000,
         params: { bookId, _: Date.now() },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(notesRes);
+      
       const reviewsRes = await axios.get(WEREAD_REVIEW_LIST_URL, {
         headers: getStandardHeaders(cookie),
         timeout: 30000,
@@ -130,6 +154,10 @@ export class WeReadService {
           _: Date.now(),
         },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(reviewsRes);
+      
       console.log('获取的评论', bookId, reviewsRes.data);
       if (notesRes.data.errcode !== undefined && notesRes.data.errcode !== 0) {
         throw new Error(notesRes.data.errmsg || '获取笔记API错误');
@@ -197,6 +225,10 @@ export class WeReadService {
           params: { _: Date.now() },
         }
       );
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
@@ -233,6 +265,10 @@ export class WeReadService {
           _: Date.now(),
         },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
@@ -256,6 +292,10 @@ export class WeReadService {
         timeout: 30000,
         params: { bookId, _: Date.now() },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
@@ -271,7 +311,12 @@ export class WeReadService {
         timeout: 30000,
         params: { _: Date.now() },
       });
-      if (response.data.errcode !== undefined && response.data.errcode !== 0) {
+      console.log('获取全部书籍', response.data);
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
+      if (response.data.errcode !== undefined && response.data.errCode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
       return response.data.books || [];
@@ -298,6 +343,10 @@ export class WeReadService {
           _: Date.now(),
         },
       });
+      
+      // 检查登录失效
+      checkLoginExpired(response);
+      
       if (response.data.errcode !== undefined && response.data.errcode !== 0) {
         throw new Error(response.data.errmsg || 'API错误');
       }
@@ -309,7 +358,7 @@ export class WeReadService {
   async getReadingStats(cookie: string): Promise<WeReadReadingStats> {
     // 这里网页版API没有专门的统计接口，只能通过书架数据统计
     const books = await this.getEntireShelf(cookie);
-    // console.log('获取的阅读统计', books);
+    console.log('获取的阅读统计', books);
     const stats: WeReadReadingStats = {
       totalBooks: books.length,
       finishedBooks: books.filter((b: any) => b.isFinished).length,

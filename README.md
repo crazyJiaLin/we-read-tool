@@ -23,7 +23,7 @@
 
 ```bash
 # 克隆项目
-git clone git@github.com:crazyJiaLin/we-read-tool.git
+git clone https://github.com/crazyJiaLin/we-read-tool.git
 cd we-read-tool
 
 # 安装所有依赖
@@ -33,7 +33,7 @@ npm run install:all
 npm run dev
 ```
 
-### 手动启动
+### 手动启动(推荐，可以看到前后端日志)
 
 ```bash
 # 安装前端依赖
@@ -47,14 +47,17 @@ npm install
 npm run dev
 ```
 
+### 访问
+- 前端：http://localhost:3000
+- 后端：http://localhost:7001
+
 ### 配置环境变量
 
 在 `backend` 目录下创建 `.env` 文件：
 
 ```bash
-# OpenAI配置（用于AI整理功能）
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-3.5-turbo
+# AI配置(Moonshot)
+MOONSHOT_API_KEY=your_moonshot_api_key_here
 ```
 
 ## 📖 使用指南
@@ -63,7 +66,7 @@ OPENAI_MODEL=gpt-3.5-turbo
 
 1. 打开微信读书网页版 (https://weread.qq.com)
 2. 登录后按F12打开开发者工具
-3. 在Network标签页中找到任意请求
+3. 在Network标签页中找到weread.qq.com的任意请求
 4. 复制请求头中的Cookie值
 5. 在工具中粘贴Cookie并点击"获取数据"
 

@@ -60,7 +60,7 @@ export class WeReadController {
     if (
       message.includes('Cookie已过期') ||
       message.includes('登录超时') ||
-      (message.includes('errcode') &&
+      (message.includes('errCode') &&
         (message.includes('-2012') || message.includes('-2010')))
     ) {
       return {
@@ -98,12 +98,10 @@ export class WeReadController {
         this.weReadService.getEntireShelf(body.cookie), // 全部书
       ]);
 
-      // console.log('获取的基础数据', {
-      //   books,
-      //   notes,
-      //   stats,
-      //   entireShelf,
-      // });
+      console.log('获取的基础数据', {
+        stats,
+        entireShelf,
+      });
 
       // 统计分类数据
       const categoryMap = new Map();

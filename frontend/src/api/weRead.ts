@@ -9,6 +9,9 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => {
     const data = response.data;
+    if(data.success === false){
+      throw new Error(data.message);
+    }
     // 如果返回的是数组，确保它是安全的
     if (Array.isArray(data)) {
       return data;
